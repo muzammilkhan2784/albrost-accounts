@@ -1,8 +1,8 @@
 """Albrost Accounts online server: logins, roles, activity log and saving to Excel.
 
 Roles
-  owner    everything, including All Records, editing, deleting and Logs.
-  manager  sees everything except All Records and Logs, and can only ADD new
+  owner    everything, including editing, deleting, timestamps and Logs.
+  manager  sees everything except Logs and timestamps, and can only ADD new
            daily sales and supplier entries. The rule is checked here on the
            server by comparing each upload with the current file, not just by
            hiding buttons on the page.

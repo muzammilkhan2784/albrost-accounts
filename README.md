@@ -8,10 +8,10 @@ A simple app for a restaurant's daily sales, expenses and supplier balances. It 
 
 | | Owner | Manager |
 |---|---|---|
-| Dashboard and Supplier Balances | ✅ | ✅ |
+| Dashboard, Supplier Balances and All Records | ✅ | ✅ |
 | Add a daily sale or supplier entry | ✅ | ✅ |
 | Edit or delete saved entries | ✅ | ❌ |
-| All Records, with "last updated" times | ✅ | ❌ |
+| "Last updated" times in All Records | ✅ | ❌ |
 | Logs | ✅ | ❌ |
 
 ## Run it online

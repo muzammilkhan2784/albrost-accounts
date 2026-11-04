@@ -11,8 +11,7 @@
 .when b { display: block; font-weight: 600; color: inherit; }
 #logsTable td { vertical-align: top; }
 #logsTable td.details { min-width: 240px; white-space: normal; }
-.role-manager nav button[data-tab="records"],
-.role-manager #tab-records,
+.role-manager .rowbtns,
 .role-manager [onclick*="editSale"],
 .role-manager [onclick*="editSupp"],
 .role-manager [onclick*="deleteSale"],

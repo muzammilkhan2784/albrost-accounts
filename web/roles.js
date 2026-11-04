@@ -30,13 +30,9 @@
   if (isOwner) setUpOwner(); else setUpManager();
 
   function setUpManager() {
-    window.renderRecords = () => {};
     const ownerOnly = () => alertBox('Not allowed', 'Only the owner can change or delete saved entries.');
     window.editSale = window.editSupp = window.deleteSale = window.deleteSupp = ownerOnly;
-    const realGo = window.go;
-    window.go = tab => realGo(tab === 'records' ? 'dash' : tab);
-    document.getElementById('tab-records').remove();
-    document.querySelector('nav button[data-tab="records"]').remove();
+    document.querySelector('#tab-records .hint').textContent = 'View only. Only the owner can change or delete saved entries.';
 
     // Same as the app's saveWorkbook, plus a clear message when the server says no.
     window.saveWorkbook = async () => {
