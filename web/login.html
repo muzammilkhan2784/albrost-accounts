@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Albrost Accounts</title>
+<style>
+  :root{--navy:#1c1675;--red:#d7000f;--line:#e2e4ec;--muted:#666b7a;--bg:#f4f5f9}
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px;background:var(--bg);color:#1f2233;font-family:"Segoe UI",system-ui,sans-serif}
+  main{width:100%;max-width:380px;background:#fff;border:1px solid var(--line);border-top:5px solid var(--navy);border-radius:14px;padding:28px 24px;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+  img{display:block;width:64px;height:64px;object-fit:cover;border-radius:50%;margin:0 auto 12px}
+  h1{margin:0;font-size:22px;text-align:center}
+  p{margin:4px 0 20px;color:var(--muted);text-align:center;font-size:14px}
+  label{display:block;margin:0 0 6px;font-weight:600;font-size:14px}
+  input{width:100%;padding:12px;margin:0 0 14px;border:1px solid #c9ccd8;border-radius:10px;font:inherit;font-size:16px}
+  input:focus{outline:2px solid var(--navy);outline-offset:1px}
+  button{width:100%;padding:12px;border:0;border-radius:10px;background:var(--navy);color:#fff;font:inherit;font-weight:600;font-size:16px;cursor:pointer}
+  button:disabled{opacity:.6;cursor:wait}
+  #error{min-height:20px;margin:12px 0 0;color:var(--red);font-size:14px;text-align:center}
+</style>
+</head>
+<body>
+<main>
+  <img src="/logo.jpg" alt="">
+  <h1>Albrost Accounts</h1>
+  <p>Sign in to continue</p>
+  <form id="form">
+    <label for="username">Username</label>
+    <input id="username" autocomplete="username" autocapitalize="none" spellcheck="false" required autofocus>
+    <label for="password">Password</label>
+    <input id="password" type="password" autocomplete="current-password" required>
+    <button id="submit">Sign in</button>
+    <div id="error" role="alert"></div>
+  </form>
+</main>
+<script>
+const form = document.getElementById('form');
+const error = document.getElementById('error');
+const submit = document.getElementById('submit');
+form.addEventListener('submit', async event => {
+  event.preventDefault();
+  error.textContent = '';
+  submit.disabled = true;
+  try {
+    const response = await fetch('/api/login', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        username: document.getElementById('username').value,
+        password: document.getElementById('password').value,
+      }),
+    });
+    if (response.ok) { location.replace('/'); return; }
+    error.textContent = response.status === 429
+      ? 'Too many wrong tries. Please wait 15 minutes.'
+      : 'Wrong username or password.';
+  } catch (e) {
+    error.textContent = 'Could not reach the server. Please try again.';
+  }
+  submit.disabled = false;
+});
+</script>
+</body>
+</html>

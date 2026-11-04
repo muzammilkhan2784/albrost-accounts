@@ -1,0 +1,747 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Albrost Accounts</title>
+<link rel="icon" href="logo.jpg">
+<script src="exceljs.min.js"></script>
+<script src="chart.umd.js"></script>
+<style>
+:root{
+  --red:#d7000f; --red-soft:#fde8ea; --navy:#1c1675; --navy-soft:#e9e8f7;
+  --yellow:#ffd400; --green:#0a7a3b; --green-soft:#e3f4ea; --amber:#e89200;
+  --bg:#f4f5f8; --card:#ffffff; --ink:#1d1f27; --muted:#646a7a; --line:#e2e4ea;
+  --radius:14px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;font-size:16px}
+button,input,select{font:inherit}
+header{background:var(--navy);color:#fff;display:flex;align-items:center;gap:14px;padding:10px 22px;position:sticky;top:0;z-index:20;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+header img{width:44px;height:44px;border-radius:50%;background:#fff;object-fit:cover}
+header h1{font-size:21px;margin:0;font-weight:700;letter-spacing:.2px}
+header .sub{font-size:13px;opacity:.8}
+header .grow{flex:1}
+.hbtn{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:10px;padding:8px 14px;cursor:pointer;font-size:14px}
+.hbtn:hover{background:rgba(255,255,255,.22)}
+nav{display:flex;gap:8px;padding:14px 22px 0;flex-wrap:wrap;max-width:1300px;margin:0 auto}
+nav button{border:0;background:#fff;color:var(--ink);padding:12px 18px;border-radius:12px 12px 0 0;cursor:pointer;font-weight:600;font-size:16px;border-bottom:4px solid transparent;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+nav button.on{color:var(--navy);border-bottom-color:var(--red)}
+nav button .ic{margin-right:6px}
+main{max-width:1300px;margin:0 auto;padding:16px 22px 60px}
+.tab{display:none}.tab.on{display:block}
+.card{background:var(--card);border-radius:var(--radius);padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.06);border:1px solid var(--line)}
+.card h2{margin:0 0 4px;font-size:20px}
+.card .hint{color:var(--muted);font-size:14px;margin:0 0 16px}
+.grid{display:grid;gap:16px}
+.grid>*{min-width:0}
+.kpis{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;position:relative;overflow:hidden}
+.kpi::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--c,var(--navy))}
+.kpi .l{color:var(--muted);font-size:14px;font-weight:600}
+.kpi .v{font-size:27px;font-weight:700;margin-top:4px;font-variant-numeric:tabular-nums}
+.kpi .s{font-size:13px;color:var(--muted);margin-top:2px}
+.two{grid-template-columns:2fr 1fr}
+.half{grid-template-columns:1fr 1fr}
+@media (max-width:950px){.two,.half{grid-template-columns:1fr}}
+.chartbox{position:relative;height:300px}
+.chartbox.sm{height:260px}
+.toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+.toolbar label{font-weight:600}
+select,input[type=text],input[type=date],input[type=number]{border:2px solid var(--line);border-radius:10px;padding:11px 12px;background:#fff;font-size:17px;width:100%;color:var(--ink)}
+select:focus,input:focus{outline:none;border-color:var(--navy)}
+.toolbar select{width:auto;min-width:200px}
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px 18px}
+.field label{display:block;font-weight:600;margin-bottom:6px}
+.field small{display:block;color:var(--muted);font-size:13px;margin-top:4px}
+.section-title{font-size:15px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:22px 0 10px;display:flex;align-items:center;gap:8px}
+.section-title .dot{width:10px;height:10px;border-radius:50%}
+.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:22px}
+.summary div{background:var(--bg);border-radius:12px;padding:14px 16px}
+.summary .l{font-size:14px;color:var(--muted);font-weight:600}
+.summary .v{font-size:24px;font-weight:700;font-variant-numeric:tabular-nums}
+@media (max-width:700px){.summary{grid-template-columns:1fr}}
+.btn{border:0;border-radius:12px;padding:14px 26px;font-size:18px;font-weight:700;cursor:pointer;background:var(--green);color:#fff}
+.btn:hover{filter:brightness(1.07)}
+.btn:disabled{opacity:.55;cursor:wait}
+.btn.grey{background:#e6e8ee;color:var(--ink)}
+.btn.red{background:var(--red)}
+.btn.navy{background:var(--navy)}
+.btn.small{padding:8px 14px;font-size:14px;border-radius:9px}
+.actions{display:flex;gap:12px;margin-top:22px;flex-wrap:wrap;align-items:center}
+.balance-box{margin-top:18px;border-radius:12px;padding:14px 18px;background:var(--navy-soft);display:flex;gap:28px;flex-wrap:wrap;align-items:center}
+.balance-box .l{font-size:14px;color:var(--muted);font-weight:600}
+.balance-box .v{font-size:23px;font-weight:700;font-variant-numeric:tabular-nums}
+.arrow{font-size:26px;color:var(--muted)}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th{text-align:left;color:var(--muted);font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:.4px;padding:10px 10px;border-bottom:2px solid var(--line);background:#fafbfc;position:sticky;top:0}
+td{padding:10px 10px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+td.n,th.n{text-align:right}
+tr.click{cursor:pointer}
+tr.click:hover td{background:#f6f7fb}
+tr.sel td{background:var(--navy-soft)}
+.scroll{max-height:520px;overflow:auto;border:1px solid var(--line);border-radius:12px}
+.pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700}
+.pill.due{background:var(--red-soft);color:var(--red)}
+.pill.ok{background:var(--green-soft);color:var(--green)}
+.pill.adv{background:#fff4d6;color:#8a5a00}
+.pos{color:var(--red);font-weight:700}
+.neg{color:var(--green);font-weight:700}
+.today{display:flex;align-items:center;gap:16px;justify-content:space-between;flex-wrap:wrap;margin-bottom:16px;border-left:6px solid var(--amber)}
+.today.done{border-left-color:var(--green)}
+.today .t{font-size:18px;font-weight:700}
+.today .d{color:var(--muted);font-size:14px}
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(30px);background:var(--green);color:#fff;padding:16px 26px;border-radius:14px;font-size:18px;font-weight:700;box-shadow:0 8px 30px rgba(0,0,0,.25);opacity:0;transition:.25s;z-index:60;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.err{background:var(--red)}
+.modal-bg{position:fixed;inset:0;background:rgba(10,12,30,.45);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+.modal-bg.show{display:flex}
+.modal{background:#fff;border-radius:16px;max-width:460px;width:100%;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.modal h3{margin:0 0 10px;font-size:20px}
+.modal p{margin:0 0 18px;color:#3b3f4c;line-height:1.5}
+.modal .actions{margin-top:0;justify-content:flex-end}
+.loading{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:70;font-size:18px;color:var(--muted)}
+.loading.hide{display:none}
+.spinner{width:42px;height:42px;border:5px solid var(--line);border-top-color:var(--red);border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.editing-banner{display:none;background:#fff4d6;border:1px solid #f0d58a;color:#6b4a00;padding:10px 14px;border-radius:10px;margin-bottom:14px;font-weight:600}
+.editing-banner.show{display:block}
+.empty{padding:30px;text-align:center;color:var(--muted)}
+.rowbtns{display:flex;gap:6px;justify-content:flex-end}
+.legend-note{font-size:13px;color:var(--muted);margin-top:8px}
+</style>
+</head>
+<body>
+
+<div class="loading" id="loading"><div class="spinner"></div><div id="loadingText">Opening your Excel file…</div></div>
+
+<header>
+  <img src="logo.jpg" alt="">
+  <div>
+    <h1>Albrost Accounts</h1>
+    <div class="sub">Daily sales, expenses &amp; supplier balances</div>
+  </div>
+  <div class="grow"></div>
+  <button class="hbtn" onclick="refreshAll()">⟳ Refresh</button>
+  <button class="hbtn" onclick="openExcel()">📗 Open Excel file</button>
+</header>
+
+<nav id="nav">
+  <button data-tab="dash" class="on"><span class="ic">📊</span>Dashboard</button>
+  <button data-tab="sale"><span class="ic">💰</span>Daily Sale Entry</button>
+  <button data-tab="supp"><span class="ic">🚚</span>Supplier Entry</button>
+  <button data-tab="khata"><span class="ic">📒</span>Supplier Balances</button>
+  <button data-tab="records"><span class="ic">📋</span>All Records</button>
+</nav>
+
+<main>
+
+<!-- DASHBOARD -->
+<section class="tab on" id="tab-dash">
+  <div class="card today" id="todayCard"></div>
+  <div class="toolbar">
+    <label for="monthSel">Show month:</label>
+    <select id="monthSel"></select>
+  </div>
+  <div class="grid kpis" id="kpis"></div>
+  <div class="grid two" style="margin-top:16px">
+    <div class="card"><h2>Daily sales</h2><p class="hint">Online and cash sale for each day. The green line is net sale (after expenses).</p><div class="chartbox"><canvas id="chDaily"></canvas></div></div>
+    <div class="card"><h2>Where the money went</h2><p class="hint">Expenses this period</p><div class="chartbox"><canvas id="chExp"></canvas></div></div>
+  </div>
+  <div class="grid half" style="margin-top:16px">
+    <div class="card"><h2>Money owed to suppliers</h2><p class="hint">Balance still to pay, all time</p><div class="chartbox sm"><canvas id="chSupp"></canvas></div></div>
+    <div class="card"><h2>Purchases by item</h2><p class="hint">Goods bought from suppliers this period</p><div class="chartbox sm"><canvas id="chItem"></canvas></div></div>
+  </div>
+</section>
+
+<!-- DAILY SALE -->
+<section class="tab" id="tab-sale">
+  <div class="card">
+    <div class="editing-banner" id="saleEditBanner"></div>
+    <h2>Daily sale entry</h2>
+    <p class="hint">Fill this once at the end of each day. Leave a box empty if it is zero. Press the green button to save into Excel.</p>
+    <div class="form">
+      <div class="field"><label for="sDate">📅 Date</label><input type="date" id="sDate"></div>
+    </div>
+    <div class="section-title"><span class="dot" style="background:var(--navy)"></span>Sales (money that came in)</div>
+    <div class="form">
+      <div class="field"><label for="sOnline">Online sale (₹)</label><input type="number" min="0" step="any" inputmode="decimal" id="sOnline" placeholder="0"><small>UPI, card, Zomato, Swiggy</small></div>
+      <div class="field"><label for="sCash">Cash sale (₹)</label><input type="number" min="0" step="any" inputmode="decimal" id="sCash" placeholder="0"><small>Cash in the counter</small></div>
+    </div>
+    <div class="section-title"><span class="dot" style="background:var(--red)"></span>Expenses (money that went out)</div>
+    <div class="form">
+      <div class="field"><label for="sOexp">Online expense (₹)</label><input type="number" min="0" step="any" inputmode="decimal" id="sOexp" placeholder="0"><small>Paid by UPI / bank</small></div>
+      <div class="field"><label for="sCexp">Cash expense (₹)</label><input type="number" min="0" step="any" inputmode="decimal" id="sCexp" placeholder="0"><small>Paid in cash</small></div>
+      <div class="field"><label for="sSaddam">Saddam (₹)</label><input type="number" min="0" step="any" inputmode="decimal" id="sSaddam" placeholder="0"></div>
+      <div class="field"><label for="sArshad">Arshad (₹)</label><input type="number" min="0" step="any" inputmode="decimal" id="sArshad" placeholder="0"></div>
+    </div>
+    <div class="summary">
+      <div><div class="l">Total sale</div><div class="v" id="sTotSale">₹0</div></div>
+      <div><div class="l">Total expense</div><div class="v" id="sTotExp">₹0</div></div>
+      <div><div class="l">Net sale (sale − expense)</div><div class="v" id="sNet">₹0</div></div>
+    </div>
+    <div class="actions">
+      <button class="btn" id="sSave" onclick="saveSale()">✔ Save to Excel</button>
+      <button class="btn grey" onclick="resetSale()">Clear form</button>
+    </div>
+  </div>
+</section>
+
+<!-- SUPPLIER ENTRY -->
+<section class="tab" id="tab-supp">
+  <div class="card">
+    <div class="editing-banner" id="suppEditBanner"></div>
+    <h2>Supplier entry</h2>
+    <p class="hint">Use this when goods come in from a supplier, or when you pay a supplier. If you only paid money (no new goods), leave “Bill amount” empty.</p>
+    <div class="form">
+      <div class="field"><label for="pDate">📅 Date</label><input type="date" id="pDate"></div>
+      <div class="field"><label for="pSupp">Supplier name</label><select id="pSupp"></select>
+        <input type="text" id="pSuppNew" placeholder="Type new supplier name" style="display:none;margin-top:8px"></div>
+      <div class="field"><label for="pItem">Item</label><select id="pItem"></select>
+        <input type="text" id="pItemNew" placeholder="Type new item name" style="display:none;margin-top:8px"></div>
+    </div>
+    <div class="form" style="margin-top:16px">
+      <div class="field"><label for="pBuy">Bill amount – goods bought (₹)</label><input type="number" min="0" step="any" inputmode="decimal" id="pBuy" placeholder="0"><small>Value of goods received today</small></div>
+      <div class="field"><label for="pPaid">Amount paid now (₹)</label><input type="number" min="0" step="any" inputmode="decimal" id="pPaid" placeholder="0"><small>Money given to the supplier today</small></div>
+    </div>
+    <div class="balance-box" id="pBal"></div>
+    <div class="actions">
+      <button class="btn" id="pSave" onclick="saveSupp()">✔ Save to Excel</button>
+      <button class="btn grey" onclick="resetSupp()">Clear form</button>
+    </div>
+  </div>
+</section>
+
+<!-- KHATA -->
+<section class="tab" id="tab-khata">
+  <div class="grid kpis" id="khataKpis" style="margin-bottom:16px"></div>
+  <div class="grid half">
+    <div class="card">
+      <h2>All suppliers</h2>
+      <p class="hint">Click a supplier to see their full history.</p>
+      <div class="scroll"><table id="khataTable"></table></div>
+    </div>
+    <div class="card">
+      <h2 id="ledgerTitle">Supplier history</h2>
+      <p class="hint" id="ledgerHint">Select a supplier on the left.</p>
+      <div class="scroll"><table id="ledgerTable"></table></div>
+      <div class="actions" id="ledgerActions" style="display:none">
+        <button class="btn navy" onclick="payFromLedger()">💸 Pay / add entry for this supplier</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RECORDS -->
+<section class="tab" id="tab-records">
+  <div class="card">
+    <h2>Daily sales records</h2>
+    <p class="hint">Made a mistake? Press <b>Edit</b> to change a day, or <b>Delete</b> to clear it.</p>
+    <div class="scroll"><table id="recSales"></table></div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <h2>Supplier records</h2>
+    <p class="hint">Every bill and payment, newest at the top.</p>
+    <div class="scroll"><table id="recSupp"></table></div>
+  </div>
+  <div class="actions"><button class="btn grey small" onclick="api('/api/open-backups',{method:'POST'})">🗂 Open backup folder</button>
+    <span class="legend-note">A backup copy of the Excel file is saved automatically every time you save.</span></div>
+</section>
+
+</main>
+
+<div class="toast" id="toast"></div>
+<div class="modal-bg" id="modalBg"><div class="modal"><h3 id="mTitle"></h3><p id="mText"></p><div class="actions" id="mBtns"></div></div></div>
+
+<script>
+"use strict";
+/* ---------- Excel layout (Sheet1) ----------
+   Daily:    A Date | B Online | C Cash | D Total Sale (=) | E Online Exp | F Cash Exp | G Saddam | H Arshad | I Total Exp (=) | J Net (=)
+   Overview: L/N rows 2-6
+   Supplier: P Date | Q Purchase | R Paid | S Supplier | T Item | U Running balance (=)
+*/
+const COL = {date:1,online:2,cash:3,tsale:4,oexp:5,cexp:6,saddam:7,arshad:8,texp:9,net:10,
+             pDate:16,pBuy:17,pPaid:18,pSupp:19,pItem:20,pBal:21};
+const NEW_SUPP = '__new__';
+let wb = null, ws = null, D = {daily:[], supp:[]};
+let charts = {};
+let editSaleRow = null, editSuppRow = null, selectedSupplier = null;
+
+/* ---------- helpers ---------- */
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const inr = (n, dec=0) => (n<0?'−':'') + '₹' + Math.abs(n).toLocaleString('en-IN',{maximumFractionDigits:dec, minimumFractionDigits:0});
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MONTHS_FULL = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+function prettyDate(ymd){ if(!ymd) return ''; const [y,m,d]=ymd.split('-'); return `${+d} ${MONTHS[+m-1]} ${y}`; }
+function todayYmd(){ const t=new Date(); return `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`; }
+function ymdToDate(ymd){ const [y,m,d]=ymd.split('-').map(Number); return new Date(Date.UTC(y,m-1,d)); }
+function raw(v){ if(v && typeof v==='object' && !(v instanceof Date)){ if('result' in v) return v.result; if(v.richText) return v.richText.map(t=>t.text).join(''); if('text' in v) return v.text; if('formula' in v) return null; } return v; }
+function num(v){ v=raw(v); if(v===null||v===undefined||v==='') return 0; if(typeof v==='number') return v; const n=parseFloat(String(v).replace(/[,₹\s]/g,'')); return isNaN(n)?0:n; }
+function str(v){ v=raw(v); return v===null||v===undefined ? '' : String(v).trim(); }
+function toYmd(v){
+  v = raw(v);
+  if(v instanceof Date && !isNaN(v)) return v.toISOString().slice(0,10);
+  if(typeof v==='number' && v>20000 && v<80000){ return new Date(Math.round((v-25569)*86400000)).toISOString().slice(0,10); }
+  if(typeof v==='string'){ const t=Date.parse(v); if(!isNaN(t)){ const d=new Date(t); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; } }
+  return null;
+}
+function val(id){ const v=$(id).value.trim(); if(v==='') return 0; const n=Number(v); return isNaN(n)?NaN:n; }
+function cellHas(r,c){ const v=ws.getCell(r,c).value; return !(v===null||v===undefined||v===''); }
+
+function toast(msg, err=false){ const t=$('toast'); t.textContent=msg; t.className='toast show'+(err?' err':''); clearTimeout(t._h); t._h=setTimeout(()=>t.className='toast'+(err?' err':''), err?5000:2800); }
+function modal(title, text, buttons){
+  return new Promise(res=>{
+    $('mTitle').textContent=title; $('mText').innerHTML=text; const box=$('mBtns'); box.innerHTML='';
+    buttons.forEach(b=>{ const el=document.createElement('button'); el.className='btn small '+(b.cls||''); el.textContent=b.label; el.onclick=()=>{ $('modalBg').classList.remove('show'); res(b.value); }; box.appendChild(el); });
+    $('modalBg').classList.add('show');
+  });
+}
+const confirmBox = (title,text,yes='Yes',cls='') => modal(title,text,[{label:'Cancel',value:false,cls:'grey'},{label:yes,value:true,cls}]);
+const alertBox = (title,text) => modal(title,text,[{label:'OK',value:true,cls:'navy'}]);
+async function api(url, opts){ try{ return await fetch(url, opts); }catch(e){ await alertBox('App is not running', 'The app window lost contact with the program. Please close this window and double-click <b>Open Albrost App</b> again.'); throw e; } }
+
+/* ---------- load / parse / save ---------- */
+async function loadWorkbook(){
+  const r = await api('/api/file', {cache:'no-store'});
+  if(r.status===404){ throw new Error('missing'); }
+  if(!r.ok) throw new Error('read');
+  const buf = await r.arrayBuffer();
+  wb = new ExcelJS.Workbook();
+  await wb.xlsx.load(buf);
+  ws = wb.getWorksheet('Sheet1') || wb.worksheets[0];
+  parse();
+}
+function parse(){
+  const daily=[], supp=[];
+  const last = Math.max(ws.rowCount, 2);
+  for(let r=2; r<=last; r++){
+    const row = ws.getRow(r);
+    const d = toYmd(row.getCell(COL.date).value);
+    if(d){
+      const f = k => num(row.getCell(COL[k]).value);
+      const has = ['online','cash','oexp','cexp','saddam','arshad'].some(k=>{ const v=row.getCell(COL[k]).value; return !(v===null||v===undefined||v===''); });
+      const e = {row:r, date:d, online:f('online'), cash:f('cash'), oexp:f('oexp'), cexp:f('cexp'), saddam:f('saddam'), arshad:f('arshad'), has};
+      e.sale = e.online+e.cash; e.exp = e.oexp+e.cexp+e.saddam+e.arshad; e.net = e.sale-e.exp;
+      daily.push(e);
+    }
+    const name = str(row.getCell(COL.pSupp).value);
+    const buy = row.getCell(COL.pBuy).value, paid = row.getCell(COL.pPaid).value;
+    if(name || !(buy===null||buy===undefined||buy==='') || !(paid===null||paid===undefined||paid==='')){
+      supp.push({row:r, date:toYmd(row.getCell(COL.pDate).value), buy:num(buy), paid:num(paid), supplier:name || '(no name)', item:str(row.getCell(COL.pItem).value)});
+    }
+  }
+  // running balance in sheet order (same as the Excel formula)
+  const run={};
+  supp.forEach(s=>{ run[s.supplier]=(run[s.supplier]||0)+s.buy-s.paid; s.balance=run[s.supplier]; });
+  D = {daily, supp};
+}
+async function saveWorkbook(){
+  wb.calcProperties = wb.calcProperties || {};
+  wb.calcProperties.fullCalcOnLoad = true;
+  const buf = await wb.xlsx.writeBuffer();
+  const r = await api('/api/save', {method:'POST', headers:{'Content-Type':'application/octet-stream'}, body:buf});
+  if(r.status===423){
+    await alertBox('Excel file is open', 'Please <b>close the Excel file</b> first (it is open in Excel), then press Save again.<br><br>Your typed entry is still here, nothing is lost.');
+    return false;
+  }
+  if(!r.ok){ await alertBox('Could not save', 'Something went wrong while saving. Please try again.'); return false; }
+  return true;
+}
+function copyStyle(fromRow, toRow, cols){ cols.forEach(c=>{ const s=ws.getCell(fromRow,c).style; ws.getCell(toRow,c).style = JSON.parse(JSON.stringify(s||{})); }); }
+
+/* ---------- supplier helpers ---------- */
+function supplierSummary(){
+  const m = {};
+  D.supp.forEach(s=>{
+    const o = m[s.supplier] ||= {name:s.supplier, buy:0, paid:0, last:null, lastItem:'', n:0};
+    o.buy+=s.buy; o.paid+=s.paid; o.n++; if(s.item) o.lastItem=s.item;
+    if(s.date && (!o.last || s.date>o.last)) o.last=s.date;
+  });
+  return Object.values(m).map(o=>({...o, bal:o.buy-o.paid})).sort((a,b)=>b.bal-a.bal || a.name.localeCompare(b.name));
+}
+function supplierBalance(name, excludeRow=null){
+  return D.supp.filter(s=>s.supplier.toLowerCase()===String(name).toLowerCase() && s.row!==excludeRow).reduce((a,s)=>a+s.buy-s.paid,0);
+}
+function statusPill(b){ return b>0.5 ? '<span class="pill due">TO PAY</span>' : b<-0.5 ? '<span class="pill adv">ADVANCE</span>' : '<span class="pill ok">CLEAR</span>'; }
+
+/* ---------- DASHBOARD ---------- */
+function monthKey(ymd){ return ymd ? ymd.slice(0,7) : null; }
+function buildMonthSel(){
+  const sel=$('monthSel'); const prev=sel.value;
+  const keys = new Set();
+  D.daily.filter(d=>d.has).forEach(d=>keys.add(monthKey(d.date)));
+  D.supp.forEach(s=>s.date && keys.add(monthKey(s.date)));
+  keys.add(monthKey(todayYmd()));
+  const list=[...keys].filter(Boolean).sort().reverse();
+  sel.innerHTML = list.map(k=>{ const [y,m]=k.split('-'); return `<option value="${k}">${MONTHS_FULL[+m-1]} ${y}</option>`; }).join('') + '<option value="all">All time</option>';
+  if(prev && [...sel.options].some(o=>o.value===prev)) sel.value=prev;
+  else { const lastWith = D.daily.filter(d=>d.has).map(d=>monthKey(d.date)).sort().pop(); sel.value = lastWith || list[0]; }
+}
+function inPeriod(ymd){ const k=$('monthSel').value; return k==='all' || (ymd && ymd.startsWith(k)); }
+
+function renderDash(){
+  const t = todayYmd();
+  const tEntry = D.daily.find(d=>d.date===t && d.has);
+  const tc=$('todayCard');
+  tc.className = 'card today' + (tEntry?' done':'');
+  tc.innerHTML = tEntry
+    ? `<div><div class="t">✅ Today's sale is entered: ${inr(tEntry.sale)}</div><div class="d">${prettyDate(t)} · Expense ${inr(tEntry.exp)} · Net ${inr(tEntry.net)}</div></div><button class="btn grey small" onclick="editSale(${tEntry.row})">Change today's entry</button>`
+    : `<div><div class="t">⏰ Today's sale is not entered yet</div><div class="d">${prettyDate(t)}</div></div><button class="btn small" onclick="go('sale')">+ Enter today's sale</button>`;
+
+  const days = D.daily.filter(d=>d.has && inPeriod(d.date)).sort((a,b)=>a.date.localeCompare(b.date));
+  const sum = k => days.reduce((a,d)=>a+d[k],0);
+  const sale=sum('sale'), online=sum('online'), cash=sum('cash'), exp=sum('exp'), net=sum('net');
+  const best = days.slice().sort((a,b)=>b.sale-a.sale)[0];
+  const sp = D.supp.filter(s=>inPeriod(s.date));
+  const bought = sp.reduce((a,s)=>a+s.buy,0), paidS = sp.reduce((a,s)=>a+s.paid,0);
+  const owed = supplierSummary().reduce((a,o)=>a+Math.max(o.bal,0),0);
+  const pct = v => sale ? Math.round(v/sale*100)+'%' : '–';
+  $('kpis').innerHTML = [
+    ['Total sale', inr(sale), `${days.length} day${days.length===1?'':'s'} entered`, 'var(--navy)'],
+    ['Online sale', inr(online), `${pct(online)} of sale`, '#4b44c8'],
+    ['Cash sale', inr(cash), `${pct(cash)} of sale`, 'var(--amber)'],
+    ['Total expense', inr(exp), `${pct(exp)} of sale`, 'var(--red)'],
+    ['Net sale', inr(net), 'Sale minus expenses', 'var(--green)'],
+    ['Average per day', inr(days.length? sale/days.length:0), best?`Best day: ${prettyDate(best.date)} (${inr(best.sale)})`:'—', '#6b7280'],
+    ['Bought from suppliers', inr(bought), `Paid to suppliers: ${inr(paidS)}`, '#0e7490'],
+    ['Still to pay suppliers', inr(owed), 'All suppliers, all time', 'var(--red)'],
+  ].map(([l,v,s,c])=>`<div class="kpi" style="--c:${c}"><div class="l">${l}</div><div class="v">${v}</div><div class="s">${esc(s)}</div></div>`).join('');
+
+  // daily chart
+  const labels = days.map(d=>{ const [y,m,dd]=d.date.split('-'); return $('monthSel').value==='all' ? `${+dd} ${MONTHS[+m-1]}` : String(+dd); });
+  drawChart('chDaily', {
+    type:'bar',
+    data:{labels, datasets:[
+      {label:'Online', data:days.map(d=>d.online), backgroundColor:'#1c1675', stack:'s', borderRadius:3, order:2},
+      {label:'Cash', data:days.map(d=>d.cash), backgroundColor:'#f0a400', stack:'s', borderRadius:3, order:2},
+      {label:'Net sale', data:days.map(d=>d.net), type:'line', borderColor:'#0a7a3b', backgroundColor:'#0a7a3b', pointRadius:3, tension:.25, order:1},
+    ]},
+    options: barOpts(true)
+  });
+  // expenses doughnut
+  const expParts=[['Online expense',sum('oexp'),'#d7000f'],['Cash expense',sum('cexp'),'#f0a400'],['Saddam',sum('saddam'),'#1c1675'],['Arshad',sum('arshad'),'#0e7490']];
+  drawChart('chExp', doughnut(expParts));
+  // supplier owed
+  const owedList = supplierSummary().filter(o=>Math.abs(o.bal)>0.5);
+  drawChart('chSupp', {
+    type:'bar',
+    data:{labels:owedList.map(o=>o.name), datasets:[{label:'Balance', data:owedList.map(o=>o.bal), backgroundColor:owedList.map(o=>o.bal>0?'#d7000f':'#0a7a3b'), borderRadius:4}]},
+    options:{...barOpts(false,true), indexAxis:'y'}
+  });
+  // items
+  const items={}; sp.forEach(s=>{ if(s.buy>0){ const k=s.item||'Other'; items[k]=(items[k]||0)+s.buy; } });
+  const pal=['#1c1675','#d7000f','#f0a400','#0a7a3b','#0e7490','#7c3aed','#be185d','#64748b'];
+  drawChart('chItem', doughnut(Object.entries(items).sort((a,b)=>b[1]-a[1]).map(([k,v],i)=>[k,v,pal[i%pal.length]])));
+}
+function barOpts(legend, horizontal=false){
+  const money = v => Math.abs(v)>=1000 ? '₹'+(v/1000).toLocaleString('en-IN',{maximumFractionDigits:1})+'k' : '₹'+v;
+  const valAxis = {grid:{color:'#eef0f4'}, ticks:{font:{size:12}, callback:money}};
+  const catAxis = {grid:{display:false}, ticks:{font:{size:12}}};
+  return {responsive:true, maintainAspectRatio:false, animation:{duration:300},
+    plugins:{legend:{display:legend, position:'bottom', labels:{boxWidth:14, font:{size:13}}},
+      tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${inr(horizontal?c.parsed.x:c.parsed.y)}`}}},
+    scales: horizontal ? {x:valAxis, y:catAxis} : {x:catAxis, y:valAxis}};
+}
+function doughnut(parts){
+  parts = parts.filter(p=>p[1]>0);
+  return {type:'doughnut', data:{labels:parts.map(p=>p[0]), datasets:[{data:parts.map(p=>p[1]), backgroundColor:parts.map(p=>p[2]), borderWidth:2, borderColor:'#fff'}]},
+    options:{responsive:true, maintainAspectRatio:false, cutout:'58%', animation:{duration:300},
+      plugins:{legend:{position:'bottom', labels:{boxWidth:14, font:{size:13}, generateLabels:ch=>{ const ds=ch.data.datasets[0]; const tot=ds.data.reduce((a,b)=>a+b,0); return ch.data.labels.map((l,i)=>({text:`${l}  ${inr(ds.data[i])} (${Math.round(ds.data[i]/tot*100)}%)`, fillStyle:ds.backgroundColor[i], strokeStyle:'#fff', index:i})); }}},
+        tooltip:{callbacks:{label:c=>`${c.label}: ${inr(c.parsed)}`}}}}};
+}
+function drawChart(id, cfg){
+  if(charts[id]) charts[id].destroy();
+  const cv=$(id);
+  const box=cv.parentElement;
+  const empty = !cfg.data.labels.length;
+  box.querySelector('.empty')?.remove();
+  cv.style.display = empty?'none':'block';
+  if(empty){ box.insertAdjacentHTML('beforeend','<div class="empty">Nothing to show for this period yet.</div>'); charts[id]=null; return; }
+  charts[id]=new Chart(cv, cfg);
+}
+
+/* ---------- DAILY SALE FORM ---------- */
+const saleIds=['sOnline','sCash','sOexp','sCexp','sSaddam','sArshad'];
+function updateSaleSummary(){
+  const v=id=>{ const n=val(id); return isNaN(n)?0:n; };
+  const sale=v('sOnline')+v('sCash'), exp=v('sOexp')+v('sCexp')+v('sSaddam')+v('sArshad');
+  $('sTotSale').textContent=inr(sale,2); $('sTotExp').textContent=inr(exp,2); $('sNet').textContent=inr(sale-exp,2);
+  $('sNet').style.color = sale-exp<0 ? 'var(--red)' : 'var(--green)';
+}
+function resetSale(){
+  editSaleRow=null; $('saleEditBanner').classList.remove('show');
+  $('sDate').value=todayYmd(); saleIds.forEach(i=>$(i).value=''); updateSaleSummary(); checkSaleDate();
+}
+function checkSaleDate(){
+  if(editSaleRow) return;
+  const d=$('sDate').value; const e=D.daily.find(x=>x.date===d && x.has);
+  const b=$('saleEditBanner');
+  if(e){ b.innerHTML=`ℹ️ ${prettyDate(d)} already has an entry (sale ${inr(e.sale)}). Saving will <u>replace</u> it. <button class="btn small grey" style="margin-left:8px" onclick="editSale(${e.row})">Load that entry</button>`; b.classList.add('show'); }
+  else b.classList.remove('show');
+}
+function editSale(row){
+  const e=D.daily.find(x=>x.row===row); if(!e) return;
+  go('sale'); editSaleRow=row;
+  $('sDate').value=e.date;
+  [['sOnline','online'],['sCash','cash'],['sOexp','oexp'],['sCexp','cexp'],['sSaddam','saddam'],['sArshad','arshad']].forEach(([i,k])=>$(i).value=e[k]||'');
+  const b=$('saleEditBanner'); b.innerHTML=`✏️ You are changing the entry for <b>${prettyDate(e.date)}</b>. Press Save when done, or Clear form to cancel.`; b.classList.add('show');
+  updateSaleSummary();
+}
+async function saveSale(){
+  const date=$('sDate').value;
+  if(!date){ return alertBox('Date missing','Please choose the date.'); }
+  const vals={}; const map={sOnline:'online',sCash:'cash',sOexp:'oexp',sCexp:'cexp',sSaddam:'saddam',sArshad:'arshad'};
+  for(const id in map){ const n=val(id); if(isNaN(n)||n<0) return alertBox('Check the amount', `“${document.querySelector('label[for='+id+']').textContent}” must be a number (0 or more).`); vals[map[id]]=n; }
+  if(Object.values(vals).every(v=>v===0)){ const ok=await confirmBox('All amounts are zero','Every box is empty. Do you still want to save this day as zero?','Save as zero'); if(!ok) return; }
+  const btn=$('sSave'); btn.disabled=true; btn.textContent='Saving…';
+  try{
+    await loadWorkbook(); // always work on the latest file
+    let target = D.daily.find(x=>x.date===date);
+    if(editSaleRow){
+      const orig = D.daily.find(x=>x.row===editSaleRow);
+      if(orig && orig.date!==date && target && target.has){
+        if(!await confirmBox('Date already used', `${prettyDate(date)} already has another entry. Replace it?`,'Replace','red')) return;
+      }
+      if(orig && orig.date!==date){ clearSaleRow(orig.row); }
+    } else if(target && target.has){
+      const ok=await confirmBox('Replace this day?', `${prettyDate(date)} already has a sale of <b>${inr(target.sale)}</b>. Do you want to replace it with the new numbers?`,'Replace','red');
+      if(!ok) return;
+    }
+    let r;
+    if(target){ r=target.row; }
+    else {
+      const lastDaily = D.daily.length ? Math.max(...D.daily.map(x=>x.row)) : 1;
+      r = lastDaily+1;
+      copyStyle(2, r, [1,2,3,4,5,6,7,8,9,10]);
+      ws.getCell(r,COL.date).value = ymdToDate(date);
+      ws.getCell(r,COL.tsale).value = {formula:`SUM(B${r}:C${r})`};
+      ws.getCell(r,COL.texp).value  = {formula:`SUM(E${r}:H${r})`};
+      ws.getCell(r,COL.net).value   = {formula:`D${r}-I${r}`};
+      extendOverview(r);
+    }
+    for(const k in vals) ws.getCell(r,COL[k]).value = vals[k];
+    if(await saveWorkbook()){
+      toast(`✔ Saved ${prettyDate(date)} — sale ${inr(vals.online+vals.cash)}`);
+      parse(); renderAll(); resetSale();
+    }
+  } catch(e){ console.error(e); if(e.message!=='Failed to fetch') alertBox('Could not save', 'Something went wrong: '+esc(e.message)); }
+  finally{ btn.disabled=false; btn.textContent='✔ Save to Excel'; }
+}
+function clearSaleRow(r){ ['online','cash','oexp','cexp','saddam','arshad'].forEach(k=>ws.getCell(r,COL[k]).value=null); }
+function extendOverview(r){
+  // FINANCE OVERVIEW totals (N2:N6) normally cover rows 2-31; widen them if a new day goes below that.
+  const f = ws.getCell('N2').value;
+  const m = f && f.formula && f.formula.match(/B2:B(\d+)/);
+  const end = m ? +m[1] : 31;
+  if(r<=end) return;
+  const n = Math.max(1000, r+100);
+  [['N2','B'],['N3','C'],['N4','D'],['N5','I'],['N6','J']].forEach(([cell,col])=>{
+    const v=ws.getCell(cell).value; if(v && v.formula) ws.getCell(cell).value={formula:`SUM(${col}2:${col}${n})`};
+  });
+}
+async function deleteSale(row){
+  const e=D.daily.find(x=>x.row===row); if(!e) return;
+  if(!await confirmBox('Delete this day?', `This will clear all numbers for <b>${prettyDate(e.date)}</b> (sale ${inr(e.sale)}). The date stays in Excel, only the amounts are removed.`,'Delete','red')) return;
+  await loadWorkbook();
+  const fresh=D.daily.find(x=>x.date===e.date); if(!fresh) return;
+  clearSaleRow(fresh.row);
+  if(await saveWorkbook()){ toast('🗑 Deleted'); parse(); renderAll(); }
+}
+
+/* ---------- SUPPLIER FORM ---------- */
+function fillSupplierDropdowns(keepSupp, keepItem){
+  const names = supplierSummary().map(o=>o.name).filter(n=>n!=='(no name)').sort((a,b)=>a.localeCompare(b));
+  const sel=$('pSupp');
+  sel.innerHTML = '<option value="">— Choose supplier —</option>' + names.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join('') + `<option value="${NEW_SUPP}">➕ Add new supplier…</option>`;
+  if(keepSupp!==undefined && [...sel.options].some(o=>o.value===keepSupp)) sel.value=keepSupp;
+  const items = [...new Set(D.supp.map(s=>s.item).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+  const isel=$('pItem');
+  isel.innerHTML = '<option value="">— Choose item —</option>' + items.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join('') + `<option value="${NEW_SUPP}">➕ Add new item…</option>`;
+  if(keepItem!==undefined && [...isel.options].some(o=>o.value===keepItem)) isel.value=keepItem;
+  toggleNew();
+}
+function toggleNew(){
+  $('pSuppNew').style.display = $('pSupp').value===NEW_SUPP ? 'block':'none';
+  $('pItemNew').style.display = $('pItem').value===NEW_SUPP ? 'block':'none';
+}
+function currentSupplierName(){ return $('pSupp').value===NEW_SUPP ? $('pSuppNew').value.trim() : $('pSupp').value; }
+function currentItemName(){ return $('pItem').value===NEW_SUPP ? $('pItemNew').value.trim() : $('pItem').value; }
+function updateSuppBalance(){
+  const name=currentSupplierName(); const box=$('pBal');
+  if(!name){ box.innerHTML='<div class="l">Choose a supplier to see how much you owe them.</div>'; return; }
+  const existing = D.supp.find(s=>s.supplier.toLowerCase()===name.toLowerCase());
+  const old = supplierBalance(name, editSuppRow);
+  const b=isNaN(val('pBuy'))?0:val('pBuy'), p=isNaN(val('pPaid'))?0:val('pPaid');
+  const nw = old + b - p;
+  const word = x => x>0.5 ? 'You owe' : x<-0.5 ? 'Advance given' : 'Nothing due';
+  box.innerHTML = `<div><div class="l">${existing?'Balance before this entry':'New supplier'}</div><div class="v">${inr(Math.abs(old),2)}</div><div class="l">${word(old)}</div></div>
+    <div class="arrow">→</div>
+    <div><div class="l">Balance after saving</div><div class="v ${nw>0.5?'pos':'neg'}">${inr(Math.abs(nw),2)}</div><div class="l">${word(nw)}</div></div>`;
+}
+function onSupplierChange(){
+  toggleNew();
+  const name=$('pSupp').value;
+  if(name && name!==NEW_SUPP && !editSuppRow){
+    const last = D.supp.filter(s=>s.supplier===name && s.item).pop();
+    if(last && [...$('pItem').options].some(o=>o.value===last.item)) { $('pItem').value=last.item; toggleNew(); }
+  }
+  updateSuppBalance();
+}
+function resetSupp(){
+  editSuppRow=null; $('suppEditBanner').classList.remove('show');
+  $('pDate').value=todayYmd(); $('pBuy').value=''; $('pPaid').value=''; $('pSuppNew').value=''; $('pItemNew').value='';
+  fillSupplierDropdowns('', ''); updateSuppBalance();
+}
+function editSupp(row){
+  const s=D.supp.find(x=>x.row===row); if(!s) return;
+  go('supp'); editSuppRow=row;
+  fillSupplierDropdowns(s.supplier, s.item);
+  $('pDate').value=s.date||todayYmd(); $('pBuy').value=s.buy||''; $('pPaid').value=s.paid||'';
+  const b=$('suppEditBanner'); b.innerHTML=`✏️ You are changing an entry for <b>${esc(s.supplier)}</b> (${prettyDate(s.date)}). Press Save when done, or Clear form to cancel.`; b.classList.add('show');
+  updateSuppBalance();
+}
+async function saveSupp(){
+  const date=$('pDate').value, name=currentSupplierName(), item=currentItemName();
+  const buy=val('pBuy'), paid=val('pPaid');
+  if(!date) return alertBox('Date missing','Please choose the date.');
+  if(!name) return alertBox('Supplier missing','Please choose the supplier from the list, or pick “Add new supplier” and type the name.');
+  if(isNaN(buy)||isNaN(paid)||buy<0||paid<0) return alertBox('Check the amount','Amounts must be numbers (0 or more).');
+  if(buy===0 && paid===0) return alertBox('No amount','Please enter the bill amount, the amount paid, or both.');
+  // match existing name ignoring capital letters, so a different spelling case joins the same supplier
+  const known = supplierSummary().find(o=>o.name.toLowerCase()===name.toLowerCase());
+  const finalName = known ? known.name : name;
+  const knownItem = [...new Set(D.supp.map(s=>s.item))].find(i=>i && i.toLowerCase()===item.toLowerCase());
+  const finalItem = knownItem || item;
+  const btn=$('pSave'); btn.disabled=true; btn.textContent='Saving…';
+  try{
+    await loadWorkbook();
+    let r;
+    if(editSuppRow && D.supp.some(s=>s.row===editSuppRow)) r=editSuppRow;
+    else {
+      const last = D.supp.length ? Math.max(...D.supp.map(s=>s.row)) : 1;
+      r = last+1;
+      copyStyle(2, r, [16,17,18,19,20]);
+      const u = ws.getCell(r,COL.pBal).value;
+      if(!(u && (u.formula || u.sharedFormula))){
+        copyStyle(2, r, [21]);
+        ws.getCell(r,COL.pBal).value = {formula:`IF(S${r}="","",SUMIF($S$2:S${r},S${r},$Q$2:Q${r})-SUMIF($S$2:S${r},S${r},$R$2:R${r}))`};
+      }
+    }
+    ws.getCell(r,COL.pDate).value = ymdToDate(date);
+    ws.getCell(r,COL.pBuy).value  = buy;
+    ws.getCell(r,COL.pPaid).value = paid;
+    ws.getCell(r,COL.pSupp).value = finalName;
+    ws.getCell(r,COL.pItem).value = finalItem || null;
+    if(await saveWorkbook()){
+      parse();
+      toast(`✔ Saved for ${finalName}. Balance now ${inr(supplierBalance(finalName))}`);
+      renderAll(); resetSupp();
+    }
+  } catch(e){ console.error(e); if(e.message!=='Failed to fetch') alertBox('Could not save', 'Something went wrong: '+esc(e.message)); }
+  finally{ btn.disabled=false; btn.textContent='✔ Save to Excel'; }
+}
+async function deleteSupp(row){
+  const s=D.supp.find(x=>x.row===row); if(!s) return;
+  if(!await confirmBox('Delete this entry?', `${esc(s.supplier)} · ${prettyDate(s.date)}<br>Bill ${inr(s.buy)} · Paid ${inr(s.paid)}<br><br>This entry will be removed from Excel.`,'Delete','red')) return;
+  await loadWorkbook();
+  const list=D.supp; const idx=list.findIndex(x=>x.row===row && x.supplier===s.supplier && x.buy===s.buy && x.paid===s.paid);
+  if(idx<0){ return alertBox('Not found','This entry changed in Excel. Press Refresh and try again.'); }
+  // move the following entries up by one row so there is no gap (the running-balance formulas stay in place)
+  const last = Math.max(...list.map(x=>x.row));
+  const cols=[COL.pDate,COL.pBuy,COL.pPaid,COL.pSupp,COL.pItem];
+  for(let r=row; r<last; r++) cols.forEach(c=>{ ws.getCell(r,c).value = ws.getCell(r+1,c).value; });
+  cols.forEach(c=>ws.getCell(last,c).value=null);
+  if(await saveWorkbook()){ toast('🗑 Deleted'); parse(); renderAll(); }
+}
+
+/* ---------- KHATA ---------- */
+function renderKhata(){
+  const list=supplierSummary();
+  const owe=list.reduce((a,o)=>a+Math.max(o.bal,0),0), adv=list.reduce((a,o)=>a+Math.max(-o.bal,0),0);
+  const tb=list.reduce((a,o)=>a+o.buy,0), tp=list.reduce((a,o)=>a+o.paid,0);
+  $('khataKpis').innerHTML=[
+    ['Total still to pay', inr(owe,2), `${list.filter(o=>o.bal>0.5).length} supplier(s) waiting`, 'var(--red)'],
+    ['Total goods bought', inr(tb,2), 'All time', 'var(--navy)'],
+    ['Total paid', inr(tp,2), 'All time', 'var(--green)'],
+    ['Advance given', inr(adv,2), 'Paid more than the bill', 'var(--amber)'],
+  ].map(([l,v,s,c])=>`<div class="kpi" style="--c:${c}"><div class="l">${l}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join('');
+  $('khataTable').innerHTML = list.length ? `<thead><tr><th>Supplier</th><th class="n">Bought</th><th class="n">Paid</th><th class="n">Balance</th><th>Status</th><th>Last entry</th></tr></thead><tbody>` +
+    list.map(o=>`<tr class="click ${o.name===selectedSupplier?'sel':''}" data-s="${esc(o.name)}"><td><b>${esc(o.name)}</b><br><small style="color:var(--muted)">${esc(o.lastItem)}</small></td><td class="n">${inr(o.buy)}</td><td class="n">${inr(o.paid)}</td><td class="n ${o.bal>0.5?'pos':'neg'}">${inr(o.bal)}</td><td>${statusPill(o.bal)}</td><td>${prettyDate(o.last)}</td></tr>`).join('') + '</tbody>'
+    : '<tr><td class="empty">No supplier entries yet.</td></tr>';
+  $('khataTable').querySelectorAll('tr.click').forEach(tr=>tr.onclick=()=>{ selectedSupplier=tr.dataset.s; renderKhata(); });
+  renderLedger();
+}
+function renderLedger(){
+  const name=selectedSupplier;
+  if(!name || !D.supp.some(s=>s.supplier===name)){ $('ledgerTitle').textContent='Supplier history'; $('ledgerHint').textContent='Select a supplier on the left.'; $('ledgerTable').innerHTML=''; $('ledgerActions').style.display='none'; return; }
+  const rows=D.supp.filter(s=>s.supplier===name);
+  const bal=supplierBalance(name);
+  $('ledgerTitle').textContent=name;
+  $('ledgerHint').innerHTML = bal>0.5 ? `You still owe <b class="pos">${inr(bal,2)}</b>` : bal<-0.5 ? `Advance given: <b class="neg">${inr(-bal,2)}</b>` : 'All clear, nothing due.';
+  $('ledgerTable').innerHTML = `<thead><tr><th>Date</th><th>Item</th><th class="n">Bill</th><th class="n">Paid</th><th class="n">Balance</th></tr></thead><tbody>` +
+    rows.slice().reverse().map(s=>`<tr><td>${prettyDate(s.date)}</td><td>${esc(s.item)}</td><td class="n">${s.buy?inr(s.buy):'–'}</td><td class="n">${s.paid?inr(s.paid):'–'}</td><td class="n ${s.balance>0.5?'pos':'neg'}">${inr(s.balance)}</td></tr>`).join('') + '</tbody>';
+  $('ledgerActions').style.display='flex';
+}
+function payFromLedger(){ resetSupp(); go('supp'); fillSupplierDropdowns(selectedSupplier); onSupplierChange(); $('pPaid').focus(); }
+
+/* ---------- RECORDS ---------- */
+function renderRecords(){
+  const days=D.daily.filter(d=>d.has).sort((a,b)=>b.date.localeCompare(a.date));
+  $('recSales').innerHTML = days.length ? `<thead><tr><th>Date</th><th class="n">Online</th><th class="n">Cash</th><th class="n">Total sale</th><th class="n">Online exp.</th><th class="n">Cash exp.</th><th class="n">Saddam</th><th class="n">Arshad</th><th class="n">Total exp.</th><th class="n">Net</th><th></th></tr></thead><tbody>` +
+    days.map(d=>`<tr><td><b>${prettyDate(d.date)}</b></td><td class="n">${inr(d.online)}</td><td class="n">${inr(d.cash)}</td><td class="n"><b>${inr(d.sale)}</b></td><td class="n">${inr(d.oexp)}</td><td class="n">${inr(d.cexp)}</td><td class="n">${inr(d.saddam)}</td><td class="n">${inr(d.arshad)}</td><td class="n">${inr(d.exp)}</td><td class="n ${d.net<0?'pos':'neg'}">${inr(d.net)}</td>
+      <td><div class="rowbtns"><button class="btn grey small" onclick="editSale(${d.row})">Edit</button><button class="btn red small" onclick="deleteSale(${d.row})">Delete</button></div></td></tr>`).join('') + '</tbody>'
+    : '<tr><td class="empty">No daily entries yet.</td></tr>';
+  const sp=D.supp.slice().reverse();
+  $('recSupp').innerHTML = sp.length ? `<thead><tr><th>Date</th><th>Supplier</th><th>Item</th><th class="n">Bill</th><th class="n">Paid</th><th class="n">Balance after</th><th></th></tr></thead><tbody>` +
+    sp.map(s=>`<tr><td>${prettyDate(s.date)}</td><td><b>${esc(s.supplier)}</b></td><td>${esc(s.item)}</td><td class="n">${s.buy?inr(s.buy):'–'}</td><td class="n">${s.paid?inr(s.paid):'–'}</td><td class="n ${s.balance>0.5?'pos':'neg'}">${inr(s.balance)}</td>
+      <td><div class="rowbtns"><button class="btn grey small" onclick="editSupp(${s.row})">Edit</button><button class="btn red small" onclick="deleteSupp(${s.row})">Delete</button></div></td></tr>`).join('') + '</tbody>'
+    : '<tr><td class="empty">No supplier entries yet.</td></tr>';
+}
+
+/* ---------- navigation & start ---------- */
+function go(tab){
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on', b.dataset.tab===tab));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on', t.id==='tab-'+tab));
+  window.scrollTo(0,0);
+}
+function renderAll(){
+  buildMonthSel(); renderDash(); renderKhata(); renderRecords();
+  const ks=$('pSupp').value, ki=$('pItem').value; fillSupplierDropdowns(ks, ki); updateSuppBalance(); checkSaleDate();
+}
+async function refreshAll(){
+  try{ await loadWorkbook(); renderAll(); toast('⟳ Up to date with Excel'); } catch(e){ showLoadError(e); }
+}
+async function openExcel(){
+  await api('/api/open-excel',{method:'POST'});
+  toast('Opening Excel… Close it again before saving here.');
+}
+function showLoadError(e){
+  $('loading').classList.remove('hide');
+  $('loadingText').innerHTML = e.message==='missing'
+    ? '❌ The Excel file <b>Al_Brost_Finance_Supplier_Balances.xlsx</b> was not found.<br>It must be in the <b>Albrost Accounts</b> folder, next to the “app” folder.'
+    : '❌ Could not open the Excel file. Please close this window and start the app again.';
+  document.querySelector('.spinner').style.display='none';
+}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>go(b.dataset.tab));
+$('monthSel').onchange=renderDash;
+saleIds.forEach(i=>$(i).addEventListener('input',updateSaleSummary));
+$('sDate').addEventListener('change',checkSaleDate);
+$('pSupp').addEventListener('change',onSupplierChange);
+$('pItem').addEventListener('change',toggleNew);
+['pBuy','pPaid','pSuppNew'].forEach(i=>$(i).addEventListener('input',updateSuppBalance));
+document.querySelectorAll('input[type=number]').forEach(el=>el.addEventListener('wheel',e=>el.blur()));
+setInterval(()=>fetch('/api/ping').catch(()=>{}), 60000);
+
+(async()=>{
+  try{
+    Chart.defaults.font.family='"Segoe UI",system-ui,sans-serif';
+    Chart.defaults.color='#4b5060';
+    await loadWorkbook();
+    resetSale(); resetSupp(); renderAll();
+    $('loading').classList.add('hide');
+  }catch(e){ console.error(e); showLoadError(e); }
+})();
+</script>
+</body>
+</html>

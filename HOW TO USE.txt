@@ -1,0 +1,18 @@
+ALBROST ACCOUNTS - HOW TO USE
+=============================
+
+1. Double-click "Open Albrost App" (or "START ALBROST APP.bat").
+   A window opens with the dashboard. Wait 2 seconds for it to load.
+
+2. Every evening:   "Daily Sale Entry" tab -> type the numbers -> press the green "Save to Excel".
+   Goods / payment: "Supplier Entry" tab -> choose supplier and item -> type bill amount and/or paid amount -> Save.
+
+3. "Dashboard" shows totals and charts. Change the month at the top.
+   "Supplier Balances" shows how much you owe each supplier. Click a name for full history.
+   "All Records" lets you Edit or Delete a wrong entry.
+
+IMPORTANT
+- Everything is saved into "Al_Brost_Finance_Supplier_Balances.xlsx" in this folder.
+- If the Excel file is open in Excel, close it before saving in the app.
+- A backup copy is made in the "Backups" folder every time you save.
+- Keep all files in this folder together. You can move the whole folder to another computer.

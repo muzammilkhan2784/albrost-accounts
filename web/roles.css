@@ -1,0 +1,19 @@
+[onclick*="openExcel"], [onclick*="open-backups"] { display: none !important; }
+.who { font-size: 13px; opacity: .9; white-space: nowrap; }
+@media (max-width: 760px) {
+  header { flex-wrap: wrap; padding: 10px 16px; gap: 8px 10px; }
+  header > div:not(.grow) { flex: 1 1 60%; min-width: 0; }
+  header .grow { display: none; }
+  .who { flex: 1 1 100%; order: 3; }
+  header .hbtn { order: 2; padding: 6px 10px; }
+}
+.when { white-space: nowrap; font-size: 12px; color: var(--muted, #666b7a); }
+.when b { display: block; font-weight: 600; color: inherit; }
+#logsTable td { vertical-align: top; }
+#logsTable td.details { min-width: 240px; white-space: normal; }
+.role-manager nav button[data-tab="records"],
+.role-manager #tab-records,
+.role-manager [onclick*="editSale"],
+.role-manager [onclick*="editSupp"],
+.role-manager [onclick*="deleteSale"],
+.role-manager [onclick*="deleteSupp"] { display: none !important; }

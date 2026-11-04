@@ -1,0 +1,22 @@
+# This repo is public. Everything is ignored unless listed here, so the Excel
+# file, backups, logs and passwords can never be pushed by accident.
+/*
+!/.gitignore
+!/README.md
+!/HOW TO USE.txt
+!/requirements.txt
+!/server.py
+!/set_password.py
+!/START ALBROST APP.bat
+!/START ONLINE.bat
+!/app/
+!/web/
+
+# Never publish data files, wherever they end up.
+*.xlsx
+*.xls
+*.xlsm
+*.csv
+*.jsonl
+*.tmp
+__pycache__/
