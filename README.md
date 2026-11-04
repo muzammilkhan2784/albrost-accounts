@@ -65,3 +65,7 @@ Stop the server, copy the file you want from `Backups` over `Al_Brost_Finance_Su
 ## Updates to this repo
 
 While the server is running, it checks for code changes every minute and pushes them here. Only the files listed in `.gitignore` can ever be uploaded.
+
+## Questions
+
+Open an issue on this repo, or ask the owner.
