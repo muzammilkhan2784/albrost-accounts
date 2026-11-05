@@ -14,18 +14,20 @@
   };
 
   // Name and Log out in the header.
-  const header = document.querySelector('header');
-  const who = document.createElement('span');
-  who.className = 'who';
-  who.textContent = 'Signed in: ' + me.name;
-  const logout = document.createElement('button');
-  logout.className = 'hbtn';
-  logout.textContent = 'Log out';
-  logout.onclick = async () => {
-    await realFetch('/api/logout', {method: 'POST'});
-    location.replace('/login');
-  };
-  header.append(who, logout);
+  if (me.login) {
+    const header = document.querySelector('header');
+    const who = document.createElement('span');
+    who.className = 'who';
+    who.textContent = 'Signed in: ' + me.name;
+    const logout = document.createElement('button');
+    logout.className = 'hbtn';
+    logout.textContent = 'Log out';
+    logout.onclick = async () => {
+      await realFetch('/api/logout', {method: 'POST'});
+      location.replace('/login');
+    };
+    header.append(who, logout);
+  }
 
   if (isOwner) setUpOwner(); else setUpManager();
 

@@ -1,6 +1,8 @@
 @echo off
 title Albrost Accounts Online
 cd /d "%~dp0"
+rem Login is off for now. To turn it on, remove "rem " from the next line.
+rem set ALBROST_LOGIN=on
 start "Albrost server" python server.py
 echo.
 echo Look below for a line with https://....trycloudflare.com - that is the link.

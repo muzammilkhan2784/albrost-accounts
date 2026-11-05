@@ -1,6 +1,8 @@
 # Albrost Accounts
 
-A simple app for a restaurant's daily sales, expenses and supplier balances. It runs on the shop computer and saves everything into one Excel file. People open it from a web link and sign in.
+A simple app for a restaurant's daily sales, expenses and supplier balances. It runs on the shop computer and saves everything into one Excel file. People open it from a web link.
+
+> **Login is off for now.** Anyone with the link has full access, so keep the link private. Logins and the manager role below start working once login is turned on (planned for December).
 
 > **This repo only holds the app's code.** The Excel file, backups, logs and passwords stay on the shop computer and are never uploaded.
 
@@ -26,7 +28,7 @@ You need [Python](https://www.python.org/downloads/) and [cloudflared](https://d
 
 2. Put `Al_Brost_Finance_Supplier_Balances.xlsx` in this folder.
 
-3. Create a login for each person. It asks for the password:
+3. To use logins: remove `rem ` from the `set ALBROST_LOGIN=on` line in **START ONLINE.bat**, then create a login for each person. It asks for the password:
 
    ```bash
    python set_password.py USERNAME owner "Display Name"

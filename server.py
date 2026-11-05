@@ -7,6 +7,9 @@ Roles
            server by comparing each upload with the current file, not just by
            hiding buttons on the page.
 
+Login is off until ALBROST_LOGIN=on is set (see START ONLINE.bat). While it is
+off, anyone who opens the link gets the owner role, so the link must stay private.
+
 The Excel file, backups, logs and password hashes are local only and are never
 pushed to GitHub (see .gitignore). Add or change a login with set_password.py.
 """
@@ -43,6 +46,9 @@ DATA = ROOT / "data"
 USERS_FILE = DATA / "users.json"
 AUDIT_FILE = DATA / "audit.jsonl"
 BASELINE = DATA / "last_known.xlsx"
+
+LOGIN_REQUIRED = os.environ.get("ALBROST_LOGIN", "off").lower() == "on"
+OPEN_SESSION = {"username": "", "name": "No login", "role": "owner"}
 
 MAX_UPLOAD = 10 * 1024 * 1024
 KEEP_BACKUPS = 60
@@ -374,7 +380,7 @@ def save_workbook(session, data):
 
 def main_page(session):
     html = (APP / "index.html").read_text(encoding="utf-8")
-    me = json.dumps({"name": session["name"], "role": session["role"]}).replace("<", "\\u003c")
+    me = json.dumps({"name": session["name"], "role": session["role"], "login": LOGIN_REQUIRED}).replace("<", "\\u003c")
     css = (WEB / "roles.css").read_text(encoding="utf-8")
     script = (WEB / "roles.js").read_text(encoding="utf-8")
     html = html.replace("</head>", f"<style>{css}</style></head>", 1)
@@ -421,7 +427,7 @@ class Handler(BaseHTTPRequestHandler):
         return ""
 
     def session(self):
-        return get_session(self.token())
+        return get_session(self.token()) if LOGIN_REQUIRED else OPEN_SESSION
 
     def cookie(self, value, max_age):
         secure = "; Secure" if self.headers.get("X-Forwarded-Proto") == "https" else ""
@@ -492,9 +498,9 @@ class Handler(BaseHTTPRequestHandler):
         if not self.same_origin():
             self.close_connection = True
             self.send_json(403, {"error": "origin"})
-        elif path == "/api/login":
+        elif LOGIN_REQUIRED and path == "/api/login":
             self.handle_login()
-        elif path == "/api/logout":
+        elif LOGIN_REQUIRED and path == "/api/logout":
             self.handle_logout()
         elif path == "/api/save":
             self.handle_save()
@@ -586,7 +592,7 @@ def sync_code_to_github():
 
 
 if __name__ == "__main__":
-    if not USERS_FILE.exists():
+    if LOGIN_REQUIRED and not USERS_FILE.exists():
         raise SystemExit("No logins yet. Create one first: python set_password.py --help")
     if "ALBROST_ROOT" not in os.environ and (CODE / ".git").exists():
         threading.Thread(target=sync_code_to_github, daemon=True).start()
